@@ -1,0 +1,125 @@
+###############################################################################
+#################################### commons #################################
+###############################################################################
+# 네임스페이스 생성
+namespace:
+  name: herebro
+  annotations: {}
+  labels: {
+    istio-injection: enabled
+  }
+
+# host 부분에 도메인으로 등록할 주소 입력
+istioGateway:
+  servers:
+    hosts:
+      - "herebro.dev.sinsang.market"
+
+# 자동 도메인 등록 (현재는 sandbox에서만 테스트 예정)
+externalDns:
+  domainFilter: "dev.sinsang.market"
+
+# 서비스 이름 입력
+fullnameOverride: herebro
+
+# # 서비스 포트 입력 (일반적으로 타겟포트도 동일하게 입력)
+# service:
+#   type: ClusterIP
+#   port: 80
+#   targetPort: 80
+
+
+###############################################################################
+#################################### cerebro ##################################
+###############################################################################
+
+replicaCount: 1
+revisionHistoryLimit: 3
+
+image:
+  repository: lmenezes/cerebro
+  # Note: when updating the version, ensure `config` and the ConfigMap are kept
+  # in sync with the default configuration of the upstream image
+  tag: 0.9.4
+  pullPolicy: IfNotPresent
+  # pullSecrets:
+
+deployment:
+  labels: {}
+  annotations: {}
+  podLabels: {}
+  podAnnotations: {}
+  livenessProbe:
+    enabled: true
+  readinessProbe:
+    enabled: true
+
+service:
+  type: ClusterIP
+  port: 80
+  annotations: {}
+  labels: {}
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  labels: {}
+  path: /
+  hosts:
+    - chart-example.local
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+
+priorityClassName: ""
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+env: {}
+  # AUTH_TYPE: "basic"
+  # BASIC_AUTH_USER: "admin"
+
+# Reference to a Secret object with environment variables
+# envFromSecretRef: 'my-secret-ref'
+
+# if config is coming from a k8s secret, give the secret name
+# configFromSecertRef: 'my-secret-config-name'
+
+config:
+  basePath: '/'
+  restHistorySize: 50
+  hosts:
+  - host: "https://helastic.dev.sinsang.market"
+    name: helastic
+
+  # Secret used to sign session cookies. If empty it will be replaced with a
+  # random 64 length string
+  secret: ''
+  tlsVerify: false
+  ## CA cert to use for cert validation
+  # tlsCaCert: /opt/cerebro/conf/certs/ca.crt
+
+# volumeMounts:
+#   - mountPath: /opt/cerebro/conf/certs/
+#     name: ca_cert_volume
+#     readOnly: true
+# volumes:
+#   - name: ca_cert_volume
+#     secret:
+#       defaultMode: 420
+#       optional: false
+#       secretName: cerebro_ca_cert_secret
